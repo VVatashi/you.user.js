@@ -1,0 +1,12 @@
+{
+  "name": "you",
+  "version": "0.1.0",
+  "description": "",
+  "main": "you.user.js",
+  "author": "VVatashi",
+  "license": "MIT",
+  "devDependencies": {
+    "jquery": "^3.1.1",
+    "typings": "^1.4.0"
+  }
+}
