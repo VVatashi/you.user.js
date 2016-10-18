@@ -1,10 +1,10 @@
 // ==UserScript==
 // @name        (You)
 // @include     *
-// @version     0.1.1
+// @version     0.1.2
 // @grant       GM_getValue
 // @grant       GM_setValue
-// @require     http://code.jquery.com/jquery-1.11.1.min.js
+// @require     http://code.jquery.com/jquery-3.1.1.min.js
 // @run-at      document-end
 // @namespace   https://github.com/VVatashi
 // @downloadURL https://raw.githubusercontent.com/VVatashi/-You-/master/you.user.js
@@ -13,10 +13,15 @@
 
 const configLocalStorageKey = 'you-config';
 
-let config = {
-    name: "Name",
-    trip: "!Trip"
+const configDefault = {
+    name: 'Name',
+    trip: '!Trip',
+    myPostStyle: `{ box-shadow: 6px 0 2px -2px rgba(97,107,134,.8), -6px 0 2px -2px rgba(97,107,134,.8); }`,
+    replyPostStyle: `{ box-shadow: 6px 0 2px -2px rgba(97,134,107,.8), -6px 0 2px -2px rgba(97,134,107,.8); }`,
+    replyLinkStyle: `:after { content: ' (You)'; }`
 };
+
+let config = configDefault;
 
 function loadConfig() {
     config = JSON.parse(GM_getValue(configLocalStorageKey, JSON.stringify(config)));
@@ -27,7 +32,7 @@ function saveConfig() {
 }
 
 const configFormClass = 'you-config-form';
-const configFormTextClass = 'you-config-form-text';
+
 const myPostClass = 'you-post-my';
 const replyPostClass = 'you-post-reply';
 const replyLinkClass = 'you-post-reply-link';
@@ -37,30 +42,30 @@ function createStyle() {
     css.type = "text/css";
 
     css.innerHTML = `
-.${myPostClass} {
-    box-shadow: 6px 0 2px -2px rgba(97,107,134,.8), -6px 0 2px -2px rgba(97,107,134,.8);
-}
+.${myPostClass}${config.myPostStyle}
 
-.${replyPostClass} {
-    box-shadow: 6px 0 2px -2px rgba(97,134,107,.8), -6px 0 2px -2px rgba(97,134,107,.8);
-}
+.${replyPostClass}${config.replyPostStyle}
 
-.${replyLinkClass}:after {
-    content: " (You)";
-}
+.${replyLinkClass}${config.replyLinkStyle}
 
-.${configFormClass} {
+form.${configFormClass} {
     position: absolute;
     background-color: white;
     box-shadow: 0px 2px 6px 0px rgba(97,107,134,.8);
     padding: 12px 16px;
     z-index: 1;
+    min-width: 30%;
 }
 
-.${configFormTextClass} {
+form.${configFormClass} table, form.${configFormClass} p {
     color: black;
+    background-color: white;
+    width: 100%;
 }
-`;
+
+form.${configFormClass} tr, form.${configFormClass} textarea {
+    width: 100%;
+}`;
 
     document.head.appendChild(css);
 }
@@ -68,9 +73,13 @@ function createStyle() {
 function createConfigForm() {
     const configNameFieldClass = 'you-config-name';
     const configTripFieldClass = 'you-config-trip';
+    const configMyPostStyleFieldClass = 'you-config-mypost-style';
+    const configReplyPostStyleFieldClass = 'you-config-replypost-style';
+    const configReplyLinkStyleFieldClass = 'you-config-replylink-style';
 
     const configToogleButtonClass = 'you-config-toogle';
     const configSaveButtonClass = 'you-config-save';
+    const configDefaultButtonClass = 'you-config-default';
 
     let parent = $('.adminbar, #adminbar, .boardlist, .menu, .board-list').first();
 
@@ -79,21 +88,41 @@ function createConfigForm() {
 <br />
 <form class="${configFormClass}">
     <table>
-        <tr><td class="${configFormTextClass}">Name:</td><td><input type="text" class="${configNameFieldClass}" value="${config.name}" /></td></tr>
-        <tr><td class="${configFormTextClass}">Trip:</td><td><input type="text" class="${configTripFieldClass}" value="${config.trip}" /></td></tr>
-        <tr><td><button class="${configSaveButtonClass}">Save</button></td><td></td></tr>
+        <tr><td>Name:</td><td><input type="text" class="${configNameFieldClass}" value="${config.name}" /></td></tr>
+        <tr><td>Trip:</td><td><input type="text" class="${configTripFieldClass}" value="${config.trip}" /></td></tr>
+        <tr><td>My post css:</td><td><textarea class="${configMyPostStyleFieldClass}">${config.myPostStyle}</textarea></td></tr>
+        <tr><td>Reply post css:</td><td><textarea class="${configReplyPostStyleFieldClass}">${config.replyPostStyle}</textarea></td></tr>
+        <tr><td>Reply link css:</td><td><textarea class="${configReplyLinkStyleFieldClass}">${config.replyLinkStyle}</textarea></td></tr>
+        <tr><td colspan="2"><button class="${configSaveButtonClass}">Save</button><button class="${configDefaultButtonClass}">Restore defaults</button></td></tr>
     </table>
+    <p>Reload page to apply changes.</p>
 </form>
 `);
 
     $('a.' + configToogleButtonClass).click(function () {
         $('form.' + configFormClass).toggle();
+        return false;
     });
 
     $('button.' + configSaveButtonClass).click(function () {
         config.name = $('input.' + configNameFieldClass).val();
         config.trip = $('input.' + configTripFieldClass).val();
+        config.myPostStyle = $('textarea.' + configMyPostStyleFieldClass).val();
+        config.replyPostStyle = $('textarea.' + configReplyPostStyleFieldClass).val();
+        config.replyLinkStyle = $('textarea.' + configReplyLinkStyleFieldClass).val();
         saveConfig();
+        return false;
+    });
+
+    $('button.' + configDefaultButtonClass).click(function () {
+        config = configDefault;
+        $('input.' + configNameFieldClass).val(config.name);
+        $('input.' + configTripFieldClass).val(config.trip);
+        $('textarea.' + configMyPostStyleFieldClass).val(config.myPostStyle);
+        $('textarea.' + configReplyPostStyleFieldClass).val(config.replyPostStyle);
+        $('textarea.' + configReplyLinkStyleFieldClass).val(config.replyLinkStyle);
+        saveConfig();
+        return false;
     });
 
     $('form.' + configFormClass).hide();
