@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        (You)
 // @include     *
-// @version     0.1.0
+// @version     0.1.1
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @require     http://code.jquery.com/jquery-1.11.1.min.js
@@ -86,17 +86,17 @@ function createConfigForm() {
 </form>
 `);
 
-    $('.' + configToogleButtonClass).click(function () {
-        $('.' + configFormClass).toggle();
+    $('a.' + configToogleButtonClass).click(function () {
+        $('form.' + configFormClass).toggle();
     });
 
-    $('.' + configSaveButtonClass).click(function () {
-        config.name = $('.' + configNameFieldClass).val();
-        config.trip = $('.' + configTripFieldClass).val();
+    $('button.' + configSaveButtonClass).click(function () {
+        config.name = $('input.' + configNameFieldClass).val();
+        config.trip = $('input.' + configTripFieldClass).val();
         saveConfig();
     });
 
-    $('.' + configFormClass).hide();
+    $('form.' + configFormClass).hide();
 }
 
 const domains = [
@@ -139,24 +139,24 @@ const tripSelector = '.postertrip, .trip, .tripcode';
 const processedClass = 'you-processed';
 const processedSelector = '.' + processedClass;
 
-function main() {
-    let posts = $(postSelector);
+let myPostsIds = [];
 
-    let myPosts = posts.filter(function (index, element) {
+function main() {
+    let newPosts = $(postSelector).not(processedSelector);
+    let myNewPosts = newPosts.filter(function (index, element) {
         let name = $(element).find(nameSelector).text();
         let trip = $(element).find(tripSelector).text();
 
         return name.indexOf(config.name) != -1 && trip.indexOf(config.trip) != -1;
     });
 
-    let newPosts = posts.not(processedSelector);
-    let myNewPosts = myPosts.not(processedSelector);
-
     myNewPosts.addClass(myPostClass);
 
-    let myPostsIds = $.map(myPosts, function (element, index) {
+    let myNewPostsIds = $.map(myNewPosts, function (element, index) {
         return $(element).attr('id').match(/\d+/)[0];
     });
+
+    myPostsIds = myPostsIds.concat(myNewPostsIds);
 
     let replies = newPosts.filter(function (index, element) {
         let replyBodyText = $(element).find(postBodySelector).text();
@@ -183,7 +183,6 @@ function main() {
     });
 
     newPosts.addClass(processedClass);
-    myNewPosts.addClass(processedClass);
 }
 
 $(document).ready(function () {
