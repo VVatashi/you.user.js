@@ -1,16 +1,3 @@
-// ==UserScript==
-// @name        (You)
-// @include     *
-// @version     0.1.3
-// @grant       GM_getValue
-// @grant       GM_setValue
-// @require     http://code.jquery.com/jquery-3.1.1.min.js
-// @run-at      document-end
-// @namespace   https://github.com/VVatashi
-// @downloadURL https://raw.githubusercontent.com/VVatashi/-You-/master/build/you.user.js
-// @updateURL   https://raw.githubusercontent.com/VVatashi/-You-/master/build/you.user.js
-// ==/UserScript==
-
 const configLocalStorageKey = 'you-config';
 
 const configDefault = {
@@ -99,12 +86,12 @@ function createConfigForm() {
 </form>
 `);
 
-    $('a.' + configToogleButtonClass).click(function () {
+    $('a.' + configToogleButtonClass).click(() => {
         $('form.' + configFormClass).toggle();
         return false;
     });
 
-    $('button.' + configSaveButtonClass).click(function () {
+    $('button.' + configSaveButtonClass).click(() => {
         config.name = $('input.' + configNameFieldClass).val();
         config.trip = $('input.' + configTripFieldClass).val();
         config.myPostStyle = $('textarea.' + configMyPostStyleFieldClass).val();
@@ -114,7 +101,7 @@ function createConfigForm() {
         return false;
     });
 
-    $('button.' + configDefaultButtonClass).click(function () {
+    $('button.' + configDefaultButtonClass).click(() => {
         config = configDefault;
         $('input.' + configNameFieldClass).val(config.name);
         $('input.' + configTripFieldClass).val(config.trip);
@@ -172,7 +159,7 @@ let myPostsIds: string[] = [];
 
 function main() {
     let newPosts = $(postSelector).not(processedSelector);
-    let myNewPosts = newPosts.filter(function (index, element) {
+    let myNewPosts = newPosts.filter((index, element) => {
         let name = $(element).find(nameSelector).text();
         let trip = $(element).find(tripSelector).text();
 
@@ -181,13 +168,13 @@ function main() {
 
     myNewPosts.addClass(myPostClass);
 
-    let myNewPostsIds = $.map(myNewPosts, function (element, index) {
+    let myNewPostsIds = $.map(myNewPosts, (element, index) => {
         return $(element).attr('id').match(/\d+/)[0];
     });
 
     myPostsIds = myPostsIds.concat(myNewPostsIds);
 
-    let replies = newPosts.filter(function (index, element) {
+    let replies = newPosts.filter((index, element) => {
         let replyBodyText = $(element).find(postBodySelector).text();
 
         for (let i = 0; i < myPostsIds.length; i++) {
@@ -200,7 +187,7 @@ function main() {
 
     replies.addClass(replyPostClass);
 
-    replies.find(postBodySelector).find('a').each(function (index, element) {
+    replies.find(postBodySelector).find('a').each((index, element) => {
         let linkText = $(element).text();
 
         for (let i = 0; i < myPostsIds.length; i++) {
@@ -214,7 +201,7 @@ function main() {
     newPosts.addClass(processedClass);
 }
 
-$(document).ready(function () {
+$(document).ready(() => {
     if (!checkDomain()) return;
 
     loadConfig();

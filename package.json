@@ -1,17 +1,20 @@
 {
   "name": "you",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "",
   "main": "you.user.js",
   "author": "VVatashi",
   "license": "MIT",
   "scripts": {
     "postinstall": "typings install",
-    "build": "tsc"
+    "build": "tsc && uglifyjs \"build/you.user.js\" -c -m -e --in-source-map \"build/you.user.js.map\" -o \"build/temp.js\" && concat-cli -f \"src/you.meta.js\" -f \"build/temp.js\" -o \"build/you.user.js\" && trash \"build/temp.js\""
   },
   "devDependencies": {
+    "concat-cli": "^4.0.0",
     "jquery": "^3.1.1",
+    "trash-cli": "^1.4.0",
     "typescript": "^2.0.3",
-    "typings": "^1.4.0"
+    "typings": "^1.4.0",
+    "uglify-js": "^2.7.3"
   }
 }
