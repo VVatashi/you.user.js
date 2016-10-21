@@ -1,30 +1,48 @@
-const configLocalStorageKey = 'you-config';
-
-const configDefault = {
-    name: 'Name',
-    trip: '!Trip',
-    myPostStyle: `{ box-shadow: 6px 0 2px -2px rgba(97,107,134,.8), -6px 0 2px -2px rgba(97,107,134,.8); }`,
-    replyPostStyle: `{ box-shadow: 6px 0 2px -2px rgba(97,134,107,.8), -6px 0 2px -2px rgba(97,134,107,.8); }`,
-    replyLinkStyle: `:after { content: ' (You)'; }`
-};
-
-let config = configDefault;
-
-function loadConfig() {
-    config = JSON.parse(GM_getValue(configLocalStorageKey, JSON.stringify(config)));
-}
-
-function saveConfig() {
-    GM_setValue(configLocalStorageKey, JSON.stringify(config));
-}
+import { Config } from './config';
+import { ImageBoard } from './imageboard';
 
 const configFormClass = 'you-config-form';
-
 const myPostClass = 'you-post-my';
 const replyPostClass = 'you-post-reply';
 const replyLinkClass = 'you-post-reply-link';
 
-function createStyle() {
+let config: Config = Config.default;
+let imageboard: ImageBoard = new ImageBoard();
+let myPostsIds: string[] = [];
+
+function checkDomain() {
+    const domains = [
+        '2ch.hk',
+        'dobrochan.com',
+        'iichan.hk',
+        'syn-ch.com',
+        '2-ch.su',
+        'nowere.net',
+        '410chan.org',
+        'kurisa.ch',
+        'chuck.dfwk.ru',
+        'owlchan.ru',
+        'haibane.ru',
+        'volgach.ru',
+        'hohoemy.exach.com',
+        'zerochan.ru',
+        'haruhichan.ovh',
+        'chaos.cyberpunk.us',
+        '02ch.in',
+        'ozuchan.ru',
+        'dvach.hut2.ru',
+        '2watch.su'
+    ];
+
+    for (let i = 0; i < domains.length; i++) {
+        if (window.location.hostname.indexOf(domains[i]) != -1)
+            return true;
+    }
+
+    return false;
+}
+
+function createCss() {
     let css = document.createElement("style");
     css.type = "text/css";
 
@@ -57,7 +75,7 @@ form.${configFormClass} tr, form.${configFormClass} textarea {
     document.head.appendChild(css);
 }
 
-function createConfigForm() {
+function createForm() {
     const configNameFieldClass = 'you-config-name';
     const configTripFieldClass = 'you-config-trip';
     const configMyPostStyleFieldClass = 'you-config-mypost-style';
@@ -68,9 +86,7 @@ function createConfigForm() {
     const configSaveButtonClass = 'you-config-save';
     const configDefaultButtonClass = 'you-config-default';
 
-    let parent = $('.adminbar, #adminbar, .boardlist, .menu, .board-list').first();
-
-    parent.after(`
+    imageboard.getAdminBar().after(`
 [ <a class="${configToogleButtonClass}">(You) config</a> ]
 <br />
 <form class="${configFormClass}">
@@ -97,71 +113,31 @@ function createConfigForm() {
         config.myPostStyle = $('textarea.' + configMyPostStyleFieldClass).val();
         config.replyPostStyle = $('textarea.' + configReplyPostStyleFieldClass).val();
         config.replyLinkStyle = $('textarea.' + configReplyLinkStyleFieldClass).val();
-        saveConfig();
+        Config.save(config);
         return false;
     });
 
     $('button.' + configDefaultButtonClass).click(() => {
-        config = configDefault;
+        config = Config.default;
         $('input.' + configNameFieldClass).val(config.name);
         $('input.' + configTripFieldClass).val(config.trip);
         $('textarea.' + configMyPostStyleFieldClass).val(config.myPostStyle);
         $('textarea.' + configReplyPostStyleFieldClass).val(config.replyPostStyle);
         $('textarea.' + configReplyLinkStyleFieldClass).val(config.replyLinkStyle);
-        saveConfig();
+        Config.save(config);
         return false;
     });
 
     $('form.' + configFormClass).hide();
 }
 
-const domains = [
-    '2ch.hk',
-    'dobrochan.com',
-    'iichan.hk',
-    'syn-ch.com',
-    '2-ch.su',
-    'nowere.net',
-    '410chan.org',
-    'kurisa.ch',
-    'chuck.dfwk.ru',
-    'owlchan.ru',
-    'haibane.ru',
-    'volgach.ru',
-    'hohoemy.exach.com',
-    'zerochan.ru',
-    'haruhichan.ovh',
-    'chaos.cyberpunk.us',
-    '02ch.in',
-    'ozuchan.ru',
-    'dvach.hut2.ru',
-    '2watch.su'
-];
-
-function checkDomain() {
-    for (let i = 0; i < domains.length; i++) {
-        if (window.location.hostname.indexOf(domains[i]) != -1)
-            return true;
-    }
-
-    return false;
-}
-
-const postSelector = 'td.reply[id], div.reply[id], td.post[id], div.post[id], div.thread_OP[id], div.thread_reply[id]';
-const postBodySelector = 'blockquote, .body, .postbody, .post_body';
-const nameSelector = '.postername, .name, .commentpostername, .poster-name';
-const tripSelector = '.postertrip, .trip, .tripcode';
-
-const processedClass = 'you-processed';
-const processedSelector = '.' + processedClass;
-
-let myPostsIds: string[] = [];
-
 function main() {
-    let newPosts = $(postSelector).not(processedSelector);
+    const processedClass = 'you-processed';
+
+    let newPosts = imageboard.getPosts().not('.' + processedClass);
     let myNewPosts = newPosts.filter((index, element) => {
-        let name = $(element).find(nameSelector).text();
-        let trip = $(element).find(tripSelector).text();
+        let name = imageboard.getName($(element));
+        let trip = imageboard.getTripcode($(element));
 
         return name.indexOf(config.name) != -1 && trip.indexOf(config.trip) != -1;
     });
@@ -175,7 +151,7 @@ function main() {
     myPostsIds = myPostsIds.concat(myNewPostsIds);
 
     let replies = newPosts.filter((index, element) => {
-        let replyBodyText = $(element).find(postBodySelector).text();
+        let replyBodyText = imageboard.getPostBodyText($(element));
 
         for (let i = 0; i < myPostsIds.length; i++) {
             if (replyBodyText.indexOf('>>' + myPostsIds[i]) != -1)
@@ -187,7 +163,7 @@ function main() {
 
     replies.addClass(replyPostClass);
 
-    replies.find(postBodySelector).find('a').each((index, element) => {
+    imageboard.getPostBodyLinks(replies).each((index, element) => {
         let linkText = $(element).text();
 
         for (let i = 0; i < myPostsIds.length; i++) {
@@ -202,11 +178,12 @@ function main() {
 }
 
 $(document).ready(() => {
-    if (!checkDomain()) return;
+    if (!checkDomain())
+        return;
 
-    loadConfig();
-    createStyle();
-    createConfigForm();
+    config = Config.load();
+    createCss();
+    createForm();
     main();
 
     setInterval(main, 10000);
