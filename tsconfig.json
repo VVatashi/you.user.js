@@ -1,0 +1,14 @@
+{
+    "compilerOptions": {
+        "module": "system",
+        "noImplicitAny": true,
+        "removeComments": false,
+        "preserveConstEnums": true,
+        "sourceMap": true,
+        "outFile": "build/you.user.js"
+    },
+    "include": [
+        "src/**/*",
+        "typings/**/*"
+    ]
+}

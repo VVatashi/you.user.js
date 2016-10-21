@@ -1,14 +1,14 @@
 // ==UserScript==
 // @name        (You)
 // @include     *
-// @version     0.1.2
+// @version     0.1.3
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @require     http://code.jquery.com/jquery-3.1.1.min.js
 // @run-at      document-end
 // @namespace   https://github.com/VVatashi
-// @downloadURL https://raw.githubusercontent.com/VVatashi/-You-/master/you.user.js
-// @updateURL   https://raw.githubusercontent.com/VVatashi/-You-/master/you.user.js
+// @downloadURL https://raw.githubusercontent.com/VVatashi/-You-/master/build/you.user.js
+// @updateURL   https://raw.githubusercontent.com/VVatashi/-You-/master/build/you.user.js
 // ==/UserScript==
 
 const configLocalStorageKey = 'you-config';
@@ -168,7 +168,7 @@ const tripSelector = '.postertrip, .trip, .tripcode';
 const processedClass = 'you-processed';
 const processedSelector = '.' + processedClass;
 
-let myPostsIds = [];
+let myPostsIds: string[] = [];
 
 function main() {
     let newPosts = $(postSelector).not(processedSelector);
