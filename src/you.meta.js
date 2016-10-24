@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        (You)
 // @include     *
-// @version     0.1.5
+// @version     0.1.6
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @require     http://code.jquery.com/jquery-3.1.1.min.js

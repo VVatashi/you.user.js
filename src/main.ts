@@ -1,49 +1,36 @@
 import { Config } from './config';
 import { ImageBoard } from './imageboard';
 
+const modalContainerClass = 'you-modal-container';
+const styleId = 'you-style';
+const configFormId = 'you-config-form';
 const configFormClass = 'you-config-form';
+const processedClass = 'you-processed';
 const myPostClass = 'you-post-my';
 const replyPostClass = 'you-post-reply';
 const replyLinkClass = 'you-post-reply-link';
 
 let config: Config = Config.default;
-let imageboard: ImageBoard = new ImageBoard();
+let imageboard: ImageBoard;
 let myPostsIds: string[] = [];
 
-function checkDomain() {
-    const domains = [
-        '2ch.hk',
-        'dobrochan.com',
-        'iichan.hk',
-        'syn-ch.com',
-        '2-ch.su',
-        'nowere.net',
-        '410chan.org',
-        'kurisa.ch',
-        'chuck.dfwk.ru',
-        'owlchan.ru',
-        'haibane.ru',
-        'volgach.ru',
-        'hohoemy.exach.com',
-        'zerochan.ru',
-        'haruhichan.ovh',
-        'chaos.cyberpunk.us',
-        '02ch.in',
-        'ozuchan.ru',
-        'dvach.hut2.ru',
-        '2watch.su'
-    ];
+function reset() {
+    $('.' + processedClass).removeClass(processedClass);
+    $('.' + myPostClass).removeClass(myPostClass);
+    $('.' + replyPostClass).removeClass(replyPostClass);
+    $('.' + replyLinkClass).removeClass(replyLinkClass);
 
-    for (let i = 0; i < domains.length; i++) {
-        if (window.location.hostname.indexOf(domains[i]) != -1)
-            return true;
-    }
+    myPostsIds = [];
 
-    return false;
+    createCss();
+    main();
 }
 
 function createCss() {
+    $('#' + styleId).remove();
+
     let css = document.createElement("style");
+    css.id = styleId;
     css.type = "text/css";
 
     css.innerHTML = `
@@ -53,22 +40,46 @@ function createCss() {
 
 .${replyLinkClass}${config.replyLinkStyle}
 
-form.${configFormClass} {
-    position: absolute;
-    background-color: white;
-    box-shadow: 0px 2px 6px 0px rgba(97,107,134,.8);
-    padding: 12px 16px;
-    z-index: 1;
-    min-width: 30%;
+div.${modalContainerClass} {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.7);
+    transition: opacity 500ms;
+    visibility: hidden;
+    opacity: 0;
 }
 
-form.${configFormClass} table, form.${configFormClass} p {
+div.${modalContainerClass}:target {
+    visibility: visible;
+    opacity: 1;
+}
+
+form.${configFormClass} {
+    margin: 70px auto;
+    padding: 20px;
+    background-color: white;
+    border-radius: 5px;
+    width: 30%;
+    position: relative;
+    transition: all 5s ease-in-out;
+    text-align: justify;
+    z-index: 1000;
+}
+
+form.${configFormClass} table, form.${configFormClass} p, form.${configFormClass} input, form.${configFormClass} textarea {
     color: black;
     background-color: white;
     width: 100%;
 }
 
-form.${configFormClass} tr, form.${configFormClass} textarea {
+form.${configFormClass} input, form.${configFormClass} textarea {
+    border: solid 1px;
+}
+
+form.${configFormClass} tr {
     width: 100%;
 }`;
 
@@ -86,26 +97,46 @@ function createForm() {
     const configSaveButtonClass = 'you-config-save';
     const configDefaultButtonClass = 'you-config-default';
 
-    imageboard.getAdminBar().after(`
-[ <a class="${configToogleButtonClass}">(You) config</a> ]
-<br />
-<form class="${configFormClass}">
-    <table>
-        <tr><td>Name:</td><td><input type="text" class="${configNameFieldClass}" value="${config.name}" /></td></tr>
-        <tr><td>Trip:</td><td><input type="text" class="${configTripFieldClass}" value="${config.trip}" /></td></tr>
-        <tr><td>My post css:</td><td><textarea class="${configMyPostStyleFieldClass}">${config.myPostStyle}</textarea></td></tr>
-        <tr><td>Reply post css:</td><td><textarea class="${configReplyPostStyleFieldClass}">${config.replyPostStyle}</textarea></td></tr>
-        <tr><td>Reply link css:</td><td><textarea class="${configReplyLinkStyleFieldClass}">${config.replyLinkStyle}</textarea></td></tr>
-        <tr><td colspan="2"><button class="${configSaveButtonClass}">Save</button><button class="${configDefaultButtonClass}">Restore defaults</button></td></tr>
-    </table>
-    <p>Reload page to apply changes.</p>
-</form>
-`);
+    let parent = imageboard.getAdminBar();
 
-    $('a.' + configToogleButtonClass).click(() => {
-        $('form.' + configFormClass).toggle();
-        return false;
-    });
+    if (!parent || parent.length == 0)
+        parent = $('body');
+
+    parent.append(`
+[ <a class="${configToogleButtonClass}" href="#${configFormId}">(You) config</a> ]
+<div id="${configFormId}" class="${modalContainerClass}">
+    <form class="${configFormClass}">
+        <table>
+            <tr>
+                <td>Name:</td>
+                <td><input type="text" class="${configNameFieldClass}" value="${config.name}" /></td>
+            </tr>
+            <tr>
+                <td>Trip:</td>
+                <td><input type="text" class="${configTripFieldClass}" value="${config.trip}" /></td>
+            </tr>
+            <tr>
+                <td>My post css:</td>
+                <td><textarea class="${configMyPostStyleFieldClass}">${config.myPostStyle}</textarea></td>
+            </tr>
+            <tr>
+                <td>Reply post css:</td>
+                <td><textarea class="${configReplyPostStyleFieldClass}">${config.replyPostStyle}</textarea></td>
+            </tr>
+            <tr>
+                <td>Reply link css:</td>
+                <td><textarea class="${configReplyLinkStyleFieldClass}">${config.replyLinkStyle}</textarea></td>
+            </tr>
+            <tr>
+                <td colspan="2" style="text-align: center;">
+                    <button class="${configSaveButtonClass}">Ok</button>
+                    <button class="${configDefaultButtonClass}">Restore defaults</button>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+`);
 
     $('button.' + configSaveButtonClass).click(() => {
         config.name = $('input.' + configNameFieldClass).val();
@@ -114,6 +145,10 @@ function createForm() {
         config.replyPostStyle = $('textarea.' + configReplyPostStyleFieldClass).val();
         config.replyLinkStyle = $('textarea.' + configReplyLinkStyleFieldClass).val();
         Config.save(config);
+
+        reset();
+
+        window.location.href = '#';
         return false;
     });
 
@@ -127,19 +162,15 @@ function createForm() {
         Config.save(config);
         return false;
     });
-
-    $('form.' + configFormClass).hide();
 }
 
 function main() {
-    const processedClass = 'you-processed';
-
     let newPosts = imageboard.getPosts().not('.' + processedClass);
     let myNewPosts = newPosts.filter((index, element) => {
-        let name = imageboard.getName($(element));
-        let trip = imageboard.getTripcode($(element));
+        let name = imageboard.getPostName($(element));
+        let trip = imageboard.getPostTripcode($(element));
 
-        return name.indexOf(config.name) != -1 && trip.indexOf(config.trip) != -1;
+        return name.contains(config.name) && trip.contains(config.trip);
     });
 
     myNewPosts.addClass(myPostClass);
@@ -154,7 +185,7 @@ function main() {
         let replyBodyText = imageboard.getPostBodyText($(element));
 
         for (let i = 0; i < myPostsIds.length; i++) {
-            if (replyBodyText.indexOf('>>' + myPostsIds[i]) != -1)
+            if (replyBodyText.contains('>>' + myPostsIds[i]))
                 return true;
         }
 
@@ -178,8 +209,14 @@ function main() {
 }
 
 $(document).ready(() => {
-    if (!checkDomain())
+    imageboard = ImageBoard.GetImageBoard();
+
+    if (!imageboard) {
+        console.log('[You] imageboard not detected');
         return;
+    }
+
+    console.log('[You] imageboard detected as ' + imageboard.getName());
 
     config = Config.load();
     createCss();
