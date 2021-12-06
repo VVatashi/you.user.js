@@ -1,5 +1,6 @@
 import { Config } from "./config";
 import { ImageBoard } from "./imageboard";
+import { contains } from "./utils";
 
 const modalContainerClass = "you-modal-container";
 const styleId = "you-style";
@@ -141,18 +142,23 @@ function createForm() {
     config.name = $("input." + configNameFieldClass)
       .val()
       .toString();
+
     config.trip = $("input." + configTripFieldClass)
       .val()
       .toString();
+
     config.myPostStyle = $("textarea." + configMyPostStyleFieldClass)
       .val()
       .toString();
+
     config.replyPostStyle = $("textarea." + configReplyPostStyleFieldClass)
       .val()
       .toString();
+
     config.replyLinkStyle = $("textarea." + configReplyLinkStyleFieldClass)
       .val()
       .toString();
+
     Config.save(config);
 
     reset();
@@ -163,12 +169,15 @@ function createForm() {
 
   $("button." + configDefaultButtonClass).click(() => {
     config = Config.default;
+
     $("input." + configNameFieldClass).val(config.name);
     $("input." + configTripFieldClass).val(config.trip);
     $("textarea." + configMyPostStyleFieldClass).val(config.myPostStyle);
     $("textarea." + configReplyPostStyleFieldClass).val(config.replyPostStyle);
     $("textarea." + configReplyLinkStyleFieldClass).val(config.replyLinkStyle);
+
     Config.save(config);
+
     return false;
   });
 }
@@ -179,15 +188,13 @@ function main() {
     let name = imageboard.getPostName($(element));
     let trip = imageboard.getPostTripcode($(element));
 
-    return name.contains(config.name) && trip.contains(config.trip);
+    return contains(name, config.name) && contains(trip, config.trip);
   });
 
   myNewPosts.addClass(myPostClass);
 
   let myNewPostsIds = myNewPosts
-    .map((index, element) => {
-      return $(element).attr("id").match(/\d+/)[0];
-    })
+    .map((index, element) => $(element).attr("id").match(/\d+/)[0])
     .toArray();
 
   myPostsIds = myPostsIds.concat(myNewPostsIds);
@@ -196,7 +203,9 @@ function main() {
     let replyBodyText = imageboard.getPostBodyText($(element));
 
     for (let i = 0; i < myPostsIds.length; i++) {
-      if (replyBodyText.contains(">>" + myPostsIds[i])) return true;
+      if (contains(replyBodyText, ">>" + myPostsIds[i])) {
+        return true;
+      }
     }
 
     return false;

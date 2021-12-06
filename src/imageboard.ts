@@ -1,3 +1,5 @@
+import { contains } from "./utils";
+
 export class ImageBoard {
   protected readonly name: string;
 
@@ -83,7 +85,7 @@ class Hanabira extends ImageBoard {
   }
 
   public static detect(): boolean {
-    return $("p.footer").text().contains("hanabira", true);
+    return contains($("p.footer").text(), "hanabira", true);
   }
 }
 
@@ -119,7 +121,7 @@ class Tinyboard extends ImageBoard {
   }
 
   public static detect(): boolean {
-    return $("footer").text().contains("tinyboard", true);
+    return contains($("footer").text(), "tinyboard", true);
   }
 }
 
@@ -137,7 +139,7 @@ class TinyIB extends ImageBoard {
   }
 
   public static detect(): boolean {
-    return $("footer").text().contains("tinyib", true);
+    return contains($("footer").text(), "tinyib", true);
   }
 }
 
@@ -155,7 +157,7 @@ class Monaba extends ImageBoard {
   }
 
   public static detect(): boolean {
-    return $("footer").text().contains("monaba", true);
+    return contains($("footer").text(), "monaba", true);
   }
 }
 
@@ -173,7 +175,7 @@ class Phutaba extends ImageBoard {
   }
 
   public static detect(): boolean {
-    return $("footer").text().contains("phutaba", true);
+    return contains($("footer").text(), "phutaba", true);
   }
 }
 
@@ -193,7 +195,7 @@ class Ochoba extends ImageBoard {
   public static detect(): boolean {
     return (
       $("script[src]").filter((index, element) =>
-        $(element).attr("src").contains("ochoba", true)
+        contains($(element).attr("src"), "ochoba", true)
       ).length > 0
     );
   }
@@ -215,7 +217,7 @@ class Wakaba extends ImageBoard {
   public static detect(): boolean {
     return (
       $("script[src]").filter((index, element) =>
-        $(element).attr("src").contains("wakaba", true)
+        contains($(element).attr("src"), "wakaba", true)
       ).length > 0
     );
   }
@@ -237,7 +239,7 @@ class Kusaba extends ImageBoard {
   public static detect(): boolean {
     return (
       $("script[src]").filter((index, element) =>
-        $(element).attr("src").contains("kusaba", true)
+        contains($(element).attr("src"), "kusaba", true)
       ).length > 0
     );
   }
