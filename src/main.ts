@@ -139,11 +139,11 @@ function createForm() {
 `);
 
     $('button.' + configSaveButtonClass).click(() => {
-        config.name = $('input.' + configNameFieldClass).val();
-        config.trip = $('input.' + configTripFieldClass).val();
-        config.myPostStyle = $('textarea.' + configMyPostStyleFieldClass).val();
-        config.replyPostStyle = $('textarea.' + configReplyPostStyleFieldClass).val();
-        config.replyLinkStyle = $('textarea.' + configReplyLinkStyleFieldClass).val();
+        config.name = $('input.' + configNameFieldClass).val().toString();
+        config.trip = $('input.' + configTripFieldClass).val().toString();
+        config.myPostStyle = $('textarea.' + configMyPostStyleFieldClass).val().toString();
+        config.replyPostStyle = $('textarea.' + configReplyPostStyleFieldClass).val().toString();
+        config.replyLinkStyle = $('textarea.' + configReplyLinkStyleFieldClass).val().toString();
         Config.save(config);
 
         reset();
@@ -175,9 +175,9 @@ function main() {
 
     myNewPosts.addClass(myPostClass);
 
-    let myNewPostsIds = $.map(myNewPosts, (element, index) => {
+    let myNewPostsIds = myNewPosts.map((index, element) => {
         return $(element).attr('id').match(/\d+/)[0];
-    });
+    }).toArray();
 
     myPostsIds = myPostsIds.concat(myNewPostsIds);
 

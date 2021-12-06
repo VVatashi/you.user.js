@@ -1,27 +1,27 @@
 {
-  "name": "you",
-  "version": "0.1.6",
+  "name": "@vvatashi/you",
+  "version": "0.1.7",
   "description": "",
-  "main": "you.user.js",
+  "main": "build/you.user.js",
   "author": "VVatashi",
   "license": "MIT",
   "scripts": {
-    "postinstall": "typings install",
     "build": "gulp"
   },
   "devDependencies": {
-    "browserify": "^13.1.0",
-    "gulp": "^3.9.1",
-    "gulp-concat": "^2.6.0",
-    "gulp-sourcemaps": "^2.1.1",
-    "gulp-typescript": "^3.0.2",
-    "gulp-uglify": "^2.0.0",
-    "jquery": "^3.1.1",
-    "tsify": "^2.0.2",
-    "typescript": "^2.0.3",
-    "typings": "^1.4.0",
-    "uglify-js": "^2.7.3",
-    "vinyl-buffer": "^1.0.0",
-    "vinyl-source-stream": "^1.1.0"
+    "@types/jquery": "^3.5.9",
+    "browserify": "^17.0.0",
+    "gulp": "^4.0.2",
+    "gulp-concat": "^2.6.1",
+    "gulp-typescript": "^6.0.0-alpha.1",
+    "gulp-uglify": "^3.0.2",
+    "tsify": "^5.0.4",
+    "typescript": "^4.5.2",
+    "uglify-js": "^3.14.4",
+    "vinyl-buffer": "^1.0.1",
+    "vinyl-source-stream": "^2.0.0"
+  },
+  "dependencies": {
+    "jquery": "^3.6.0"
   }
 }

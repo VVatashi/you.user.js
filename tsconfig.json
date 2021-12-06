@@ -9,7 +9,6 @@
         "outDir": "build"
     },
     "include": [
-        "src/**/*",
-        "typings/**/*"
+        "src/**/*"
     ]
 }
