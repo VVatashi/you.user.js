@@ -1,39 +1,39 @@
-import { Config } from './config';
-import { ImageBoard } from './imageboard';
+import { Config } from "./config";
+import { ImageBoard } from "./imageboard";
 
-const modalContainerClass = 'you-modal-container';
-const styleId = 'you-style';
-const configFormId = 'you-config-form';
-const configFormClass = 'you-config-form';
-const processedClass = 'you-processed';
-const myPostClass = 'you-post-my';
-const replyPostClass = 'you-post-reply';
-const replyLinkClass = 'you-post-reply-link';
+const modalContainerClass = "you-modal-container";
+const styleId = "you-style";
+const configFormId = "you-config-form";
+const configFormClass = "you-config-form";
+const processedClass = "you-processed";
+const myPostClass = "you-post-my";
+const replyPostClass = "you-post-reply";
+const replyLinkClass = "you-post-reply-link";
 
 let config: Config = Config.default;
 let imageboard: ImageBoard;
 let myPostsIds: string[] = [];
 
 function reset() {
-    $('.' + processedClass).removeClass(processedClass);
-    $('.' + myPostClass).removeClass(myPostClass);
-    $('.' + replyPostClass).removeClass(replyPostClass);
-    $('.' + replyLinkClass).removeClass(replyLinkClass);
+  $("." + processedClass).removeClass(processedClass);
+  $("." + myPostClass).removeClass(myPostClass);
+  $("." + replyPostClass).removeClass(replyPostClass);
+  $("." + replyLinkClass).removeClass(replyLinkClass);
 
-    myPostsIds = [];
+  myPostsIds = [];
 
-    createCss();
-    main();
+  createCss();
+  main();
 }
 
 function createCss() {
-    $('#' + styleId).remove();
+  $("#" + styleId).remove();
 
-    let css = document.createElement("style");
-    css.id = styleId;
-    css.type = "text/css";
+  let css = document.createElement("style");
+  css.id = styleId;
+  css.type = "text/css";
 
-    css.innerHTML = `
+  css.innerHTML = `
 .${myPostClass}${config.myPostStyle}
 
 .${replyPostClass}${config.replyPostStyle}
@@ -83,26 +83,25 @@ form.${configFormClass} tr {
     width: 100%;
 }`;
 
-    document.head.appendChild(css);
+  document.head.appendChild(css);
 }
 
 function createForm() {
-    const configNameFieldClass = 'you-config-name';
-    const configTripFieldClass = 'you-config-trip';
-    const configMyPostStyleFieldClass = 'you-config-mypost-style';
-    const configReplyPostStyleFieldClass = 'you-config-replypost-style';
-    const configReplyLinkStyleFieldClass = 'you-config-replylink-style';
+  const configNameFieldClass = "you-config-name";
+  const configTripFieldClass = "you-config-trip";
+  const configMyPostStyleFieldClass = "you-config-mypost-style";
+  const configReplyPostStyleFieldClass = "you-config-replypost-style";
+  const configReplyLinkStyleFieldClass = "you-config-replylink-style";
 
-    const configToogleButtonClass = 'you-config-toogle';
-    const configSaveButtonClass = 'you-config-save';
-    const configDefaultButtonClass = 'you-config-default';
+  const configToogleButtonClass = "you-config-toogle";
+  const configSaveButtonClass = "you-config-save";
+  const configDefaultButtonClass = "you-config-default";
 
-    let parent = imageboard.getAdminBar();
+  let parent = imageboard.getAdminBar();
 
-    if (!parent || parent.length == 0)
-        parent = $('body');
+  if (!parent || parent.length == 0) parent = $("body");
 
-    parent.append(`
+  parent.append(`
 [ <a class="${configToogleButtonClass}" href="#${configFormId}">(You) config</a> ]
 <div id="${configFormId}" class="${modalContainerClass}">
     <form class="${configFormClass}">
@@ -138,90 +137,101 @@ function createForm() {
 </div>
 `);
 
-    $('button.' + configSaveButtonClass).click(() => {
-        config.name = $('input.' + configNameFieldClass).val().toString();
-        config.trip = $('input.' + configTripFieldClass).val().toString();
-        config.myPostStyle = $('textarea.' + configMyPostStyleFieldClass).val().toString();
-        config.replyPostStyle = $('textarea.' + configReplyPostStyleFieldClass).val().toString();
-        config.replyLinkStyle = $('textarea.' + configReplyLinkStyleFieldClass).val().toString();
-        Config.save(config);
+  $("button." + configSaveButtonClass).click(() => {
+    config.name = $("input." + configNameFieldClass)
+      .val()
+      .toString();
+    config.trip = $("input." + configTripFieldClass)
+      .val()
+      .toString();
+    config.myPostStyle = $("textarea." + configMyPostStyleFieldClass)
+      .val()
+      .toString();
+    config.replyPostStyle = $("textarea." + configReplyPostStyleFieldClass)
+      .val()
+      .toString();
+    config.replyLinkStyle = $("textarea." + configReplyLinkStyleFieldClass)
+      .val()
+      .toString();
+    Config.save(config);
 
-        reset();
+    reset();
 
-        window.location.href = '#';
-        return false;
-    });
+    window.location.href = "#";
+    return false;
+  });
 
-    $('button.' + configDefaultButtonClass).click(() => {
-        config = Config.default;
-        $('input.' + configNameFieldClass).val(config.name);
-        $('input.' + configTripFieldClass).val(config.trip);
-        $('textarea.' + configMyPostStyleFieldClass).val(config.myPostStyle);
-        $('textarea.' + configReplyPostStyleFieldClass).val(config.replyPostStyle);
-        $('textarea.' + configReplyLinkStyleFieldClass).val(config.replyLinkStyle);
-        Config.save(config);
-        return false;
-    });
+  $("button." + configDefaultButtonClass).click(() => {
+    config = Config.default;
+    $("input." + configNameFieldClass).val(config.name);
+    $("input." + configTripFieldClass).val(config.trip);
+    $("textarea." + configMyPostStyleFieldClass).val(config.myPostStyle);
+    $("textarea." + configReplyPostStyleFieldClass).val(config.replyPostStyle);
+    $("textarea." + configReplyLinkStyleFieldClass).val(config.replyLinkStyle);
+    Config.save(config);
+    return false;
+  });
 }
 
 function main() {
-    let newPosts = imageboard.getPosts().not('.' + processedClass);
-    let myNewPosts = newPosts.filter((index, element) => {
-        let name = imageboard.getPostName($(element));
-        let trip = imageboard.getPostTripcode($(element));
+  let newPosts = imageboard.getPosts().not("." + processedClass);
+  let myNewPosts = newPosts.filter((index, element) => {
+    let name = imageboard.getPostName($(element));
+    let trip = imageboard.getPostTripcode($(element));
 
-        return name.contains(config.name) && trip.contains(config.trip);
-    });
+    return name.contains(config.name) && trip.contains(config.trip);
+  });
 
-    myNewPosts.addClass(myPostClass);
+  myNewPosts.addClass(myPostClass);
 
-    let myNewPostsIds = myNewPosts.map((index, element) => {
-        return $(element).attr('id').match(/\d+/)[0];
-    }).toArray();
+  let myNewPostsIds = myNewPosts
+    .map((index, element) => {
+      return $(element).attr("id").match(/\d+/)[0];
+    })
+    .toArray();
 
-    myPostsIds = myPostsIds.concat(myNewPostsIds);
+  myPostsIds = myPostsIds.concat(myNewPostsIds);
 
-    let replies = newPosts.filter((index, element) => {
-        let replyBodyText = imageboard.getPostBodyText($(element));
+  let replies = newPosts.filter((index, element) => {
+    let replyBodyText = imageboard.getPostBodyText($(element));
 
-        for (let i = 0; i < myPostsIds.length; i++) {
-            if (replyBodyText.contains('>>' + myPostsIds[i]))
-                return true;
-        }
+    for (let i = 0; i < myPostsIds.length; i++) {
+      if (replyBodyText.contains(">>" + myPostsIds[i])) return true;
+    }
 
-        return false;
-    });
+    return false;
+  });
 
-    replies.addClass(replyPostClass);
+  replies.addClass(replyPostClass);
 
-    imageboard.getPostBodyLinks(replies).each((index, element) => {
-        let linkText = $(element).text();
+  imageboard.getPostBodyLinks(replies).each((index, element) => {
+    let linkText = $(element).text();
 
-        for (let i = 0; i < myPostsIds.length; i++) {
-            if (linkText == '>>' + myPostsIds[i]) {
-                $(element).addClass(replyLinkClass);
-                return;
-            }
-        }
-    });
+    for (let i = 0; i < myPostsIds.length; i++) {
+      if (linkText == ">>" + myPostsIds[i]) {
+        $(element).addClass(replyLinkClass);
+        return;
+      }
+    }
+  });
 
-    newPosts.addClass(processedClass);
+  newPosts.addClass(processedClass);
 }
 
 $(document).ready(async () => {
-    imageboard = ImageBoard.GetImageBoard();
+  imageboard = ImageBoard.GetImageBoard();
 
-    if (!imageboard) {
-        console.log('[You] imageboard not detected');
-        return;
-    }
+  if (!imageboard) {
+    console.log("[You] imageboard not detected");
+    return;
+  }
 
-    console.log('[You] imageboard detected as ' + imageboard.getName());
+  console.log("[You] imageboard detected as " + imageboard.getName());
 
-    config = await Config.load();
-    createCss();
-    createForm();
-    main();
+  config = await Config.load();
+  createCss();
+  createForm();
+  main();
 
-    setInterval(main, 10000);
+  setInterval(main, 10000);
 });
