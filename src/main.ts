@@ -208,7 +208,7 @@ function main() {
     newPosts.addClass(processedClass);
 }
 
-$(document).ready(() => {
+$(document).ready(async () => {
     imageboard = ImageBoard.GetImageBoard();
 
     if (!imageboard) {
@@ -218,7 +218,7 @@ $(document).ready(() => {
 
     console.log('[You] imageboard detected as ' + imageboard.getName());
 
-    config = Config.load();
+    config = await Config.load();
     createCss();
     createForm();
     main();

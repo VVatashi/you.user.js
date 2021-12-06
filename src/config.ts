@@ -20,11 +20,13 @@ export class Config {
 
     private static readonly localStorageKey = 'you-config';
 
-    public static save(config: Config) {
-        GM_setValue(Config.localStorageKey, JSON.stringify(config));
+    public static save(config: Config): Promise<void> {
+        return GM.setValue(Config.localStorageKey, JSON.stringify(config));
     }
 
-    public static load(): Config {
-        return JSON.parse(GM_getValue(Config.localStorageKey, JSON.stringify(Config.default)));
+    public static async load(): Promise<Config> {
+        const defaultConfigJson = JSON.stringify(Config.default);
+        const configJson = (await GM.getValue(Config.localStorageKey, defaultConfigJson)).toString();
+        return JSON.parse(configJson);
     }
 }
