@@ -30,9 +30,8 @@ function reset() {
 function createCss() {
   $("#" + styleId).remove();
 
-  let css = document.createElement("style");
+  const css = document.createElement("style");
   css.id = styleId;
-  css.type = "text/css";
 
   css.innerHTML = `
 .${myPostClass}${config.myPostStyle}
@@ -99,8 +98,9 @@ function createForm() {
   const configDefaultButtonClass = "you-config-default";
 
   let parent = imageboard.getAdminBar();
-
-  if (!parent || parent.length == 0) parent = $("body");
+  if (!parent || parent.length == 0) {
+    parent = $("body");
+  }
 
   parent.append(`
 [ <a class="${configToogleButtonClass}" href="#${configFormId}">(You) config</a> ]
@@ -138,7 +138,7 @@ function createForm() {
 </div>
 `);
 
-  $("button." + configSaveButtonClass).click(() => {
+  $("button." + configSaveButtonClass).on("click", () => {
     config.name = $("input." + configNameFieldClass)
       .val()
       .toString();
@@ -164,10 +164,11 @@ function createForm() {
     reset();
 
     window.location.href = "#";
+
     return false;
   });
 
-  $("button." + configDefaultButtonClass).click(() => {
+  $("button." + configDefaultButtonClass).on("click", () => {
     config = Config.default;
 
     $("input." + configNameFieldClass).val(config.name);
@@ -183,24 +184,24 @@ function createForm() {
 }
 
 function main() {
-  let newPosts = imageboard.getPosts().not("." + processedClass);
-  let myNewPosts = newPosts.filter((index, element) => {
-    let name = imageboard.getPostName($(element));
-    let trip = imageboard.getPostTripcode($(element));
+  const newPosts = imageboard.getPosts().not("." + processedClass);
+  const myNewPosts = newPosts.filter((index, element) => {
+    const name = imageboard.getPostName($(element));
+    const trip = imageboard.getPostTripcode($(element));
 
     return contains(name, config.name) && contains(trip, config.trip);
   });
 
   myNewPosts.addClass(myPostClass);
 
-  let myNewPostsIds = myNewPosts
+  const myNewPostsIds = myNewPosts
     .map((index, element) => $(element).attr("id").match(/\d+/)[0])
     .toArray();
 
   myPostsIds = myPostsIds.concat(myNewPostsIds);
 
-  let replies = newPosts.filter((index, element) => {
-    let replyBodyText = imageboard.getPostBodyText($(element));
+  const replies = newPosts.filter((index, element) => {
+    const replyBodyText = imageboard.getPostBodyText($(element));
 
     for (let i = 0; i < myPostsIds.length; i++) {
       if (contains(replyBodyText, ">>" + myPostsIds[i])) {
@@ -214,7 +215,7 @@ function main() {
   replies.addClass(replyPostClass);
 
   imageboard.getPostBodyLinks(replies).each((index, element) => {
-    let linkText = $(element).text();
+    const linkText = $(element).text();
 
     for (let i = 0; i < myPostsIds.length; i++) {
       if (linkText == ">>" + myPostsIds[i]) {
@@ -227,7 +228,7 @@ function main() {
   newPosts.addClass(processedClass);
 }
 
-$(document).ready(async () => {
+$(async () => {
   imageboard = ImageBoard.GetImageBoard();
 
   if (!imageboard) {

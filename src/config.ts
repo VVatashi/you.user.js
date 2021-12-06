@@ -1,23 +1,11 @@
 export class Config {
-  public name: string;
-  public trip: string;
-  public myPostStyle: string;
-  public replyPostStyle: string;
-  public replyLinkStyle: string;
-
   private constructor(
-    name: string,
-    trip: string,
-    myPostStyle: string,
-    replyPostStyle: string,
-    replyLinkStyle: string
-  ) {
-    this.name = name;
-    this.trip = trip;
-    this.myPostStyle = myPostStyle;
-    this.replyPostStyle = replyPostStyle;
-    this.replyLinkStyle = replyLinkStyle;
-  }
+    public name: string,
+    public trip: string,
+    public myPostStyle: string,
+    public replyPostStyle: string,
+    public replyLinkStyle: string
+  ) {}
 
   public static readonly default: Config = new Config(
     "Name",
@@ -30,7 +18,9 @@ export class Config {
   private static readonly localStorageKey = "you-config";
 
   public static save(config: Config): Promise<void> {
-    return GM.setValue(Config.localStorageKey, JSON.stringify(config));
+    const configJson = JSON.stringify(config);
+
+    return GM.setValue(Config.localStorageKey, configJson);
   }
 
   public static async load(): Promise<Config> {

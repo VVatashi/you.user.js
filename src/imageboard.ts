@@ -1,34 +1,15 @@
 import { contains } from "./utils";
 
 export class ImageBoard {
-  protected readonly name: string;
-
-  protected readonly adminBarSelector: string;
-  protected readonly postSelector: string;
-
-  protected readonly postSubjectelector: string;
-  protected readonly postNameSelector: string;
-  protected readonly postTripSelector: string;
-  protected readonly postBodySelector: string;
-
   protected constructor(
-    name: string,
-    adminBarSelector: string,
-    postSelector: string,
-    postSubjectSelector: string,
-    postNameSelector: string,
-    postTripSelector: string,
-    postBodySelector: string
-  ) {
-    this.name = name;
-    this.adminBarSelector = adminBarSelector;
-    this.postSelector = postSelector;
-
-    this.postSubjectelector = postSubjectSelector;
-    this.postNameSelector = postNameSelector;
-    this.postTripSelector = postTripSelector;
-    this.postBodySelector = postBodySelector;
-  }
+    protected readonly name: string,
+    protected readonly adminBarSelector: string,
+    protected readonly postSelector: string,
+    protected readonly postSubjectSelector: string,
+    protected readonly postNameSelector: string,
+    protected readonly postTripSelector: string,
+    protected readonly postBodySelector: string
+  ) {}
 
   public getAdminBar(): JQuery {
     return $(this.adminBarSelector).first();
@@ -39,7 +20,7 @@ export class ImageBoard {
   }
 
   public getPostSubject(post: JQuery): string {
-    return post.find(this.postSubjectelector).text();
+    return post.find(this.postSubjectSelector).text();
   }
 
   public getPostName(post: JQuery): string {
